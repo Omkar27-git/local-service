@@ -1,0 +1,22 @@
+version: 1
+applications:
+  - appRoot: apps/frontend
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            # Install pnpm using corepack (recommended by pnpm)
+            - corepack enable
+            - corepack prepare pnpm@10.22.0 --activate
+            - pnpm install
+        build:
+          commands:
+            - pnpm build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+          - .pnpm-store/**/*
