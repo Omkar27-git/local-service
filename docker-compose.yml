@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  backend:
+    image: local-service-backend
+    ports:
+      - "4000:4000"
+    env_file:
+      - apps/backend/.env
+
+  frontend:
+    image: local-service-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
