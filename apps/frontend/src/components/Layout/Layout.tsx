@@ -1,21 +1,17 @@
-import { Box } from "@mui/material";
+import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
-import Navbar from "./Navbar";
-import type { ReactNode } from "react";
 
-const Layout = ({ children }: { children: ReactNode }) => {
+const Layout = () => {
   return (
-    <Box display="flex">
+    <div className="min-h-screen flex">
+      {/* Sidebar */}
       <Sidebar />
 
-      <Box flex={1}>
-        <Navbar />
-
-        <Box p={3} bgcolor="#f9fafb" minHeight="calc(100vh - 64px)">
-          {children}
-        </Box>
-      </Box>
-    </Box>
+      {/* Page Content */}
+      <main className="flex-1 p-6 bg-gray-50">
+        <Outlet />
+      </main>
+    </div>
   );
 };
 

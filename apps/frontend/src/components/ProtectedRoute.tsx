@@ -1,15 +1,22 @@
 import { Navigate } from "react-router-dom";
-import { useAuthStore } from "../store/auth.store";
-import type { ReactNode } from "react";
+import { useEffect, useState } from "react";
+import api from "../api/axios";
 
-const ProtectedRoute = ({ children }: { children: ReactNode }) => {
-  const token = useAuthStore((state) => state.token);
+const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+  const [loading, setLoading] = useState(true);
+  const [isAuth, setIsAuth] = useState(false);
 
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
+  useEffect(() => {
+    api
+      .get("/auth/me") // 👈 we will add this endpoint
+      .then(() => setIsAuth(true))
+      .catch(() => setIsAuth(false))
+      .finally(() => setLoading(false));
+  }, []);
 
-  return children;
+  if (loading) return null;
+
+  return isAuth ? children : <Navigate to="/login" replace />;
 };
 
 export default ProtectedRoute;

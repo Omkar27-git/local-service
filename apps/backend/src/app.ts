@@ -2,41 +2,47 @@ import "express-async-errors";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import logger from "./utils/logger";
+import passport from "./config/passport";
 import routes from "./routes";
-import passport from "passport"; // ✅ use passport directly
+import errorHandler from "./middlewares/error.middleware";
 
 const app = express();
 
-// CORS
+/**
+ * ✅ CORS FIX (no undefined allowed)
+ */
+const allowedOrigins: string[] = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173"
+];
+
+if (process.env.FRONTEND_URL) {
+  allowedOrigins.push(process.env.FRONTEND_URL);
+}
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: allowedOrigins,
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"]
   })
 );
 
-// Parsers
+// Preflight
+app.options("*", cors());
+
 app.use(express.json());
 app.use(cookieParser());
-
-// Passport init
 app.use(passport.initialize());
 
-logger.info("App initialized successfully");
-
-// Health check
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
   res.send("Backend is running 🚀");
 });
 
-// Routes
 app.use("/api", routes);
 
-// Error handler
-import errorHandler from "./middlewares/error.middleware";
+// Global error handler
 app.use(errorHandler);
 
 export default app;

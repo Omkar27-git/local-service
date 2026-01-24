@@ -1,36 +1,49 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true
+export interface IUser extends Document {
+  name: string;
+  email: string;
+  password?: string;
+  provider: "local" | "google";
+  isEmailVerified: boolean;
+  emailVerificationToken?: string;
+}
+
+const userSchema = new Schema<IUser>(
+  {
+    name: { type: String, required: true, trim: true },
+
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true
+    },
+
+    password: {
+      type: String,
+      required: function (this: IUser) {
+        return this.provider === "local";
+      },
+      select: false
+    },
+
+    provider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local"
+    },
+
+    isEmailVerified: {
+      type: Boolean,
+      default: false
+    },
+
+    emailVerificationToken: {
+      type: String
+    }
   },
+  { timestamps: true }
+);
 
-  email: {
-    type: String,
-    required: true,
-    unique: true
-  },
-
-  password: {
-    type: String,
-    required: true,
-    select: false
-  },
-
-  provider: {
-    type: String
-  },
-  isEmailVerified: {
-    type: Boolean,
-    default: false
-  },
-  emailVerificationToken: {
-    type: String
-  }
-  //google 
-
-}, { timestamps: true });
-
-
-export default mongoose.model('User', userSchema)
+export default mongoose.model<IUser>("User", userSchema);

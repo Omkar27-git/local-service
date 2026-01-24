@@ -1,80 +1,42 @@
 import { Request, Response } from "express";
-import { Auth } from "@auth/core";
-import Google from "@auth/core/providers/google";
-import { Request as FetchRequest } from "undici";
+import passport from "passport";
 import jwt from "jsonwebtoken";
 import User from "../models/user.model";
 
-// STEP 1: Redirect to Google
-export const googleSignIn = async (req: Request, res: Response) => {
-  const fetchReq = new FetchRequest(
-    `${process.env.BASE_URL}${req.originalUrl}`,
-    {
-      method: req.method,
-      headers: req.headers as any
-    }
-  );
+// STEP 1: redirect to Google
+export const googleSignIn = passport.authenticate("google", {
+  scope: ["profile", "email"]
+});
 
-  const response = await Auth(fetchReq as any, {
-    providers: [
-      Google({
-        clientId: process.env.GOOGLE_CLIENT_ID!,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET!
-      })
-    ],
-    secret: process.env.AUTH_SECRET!,
-    trustHost: true
-  });
-
-  if (response.status === 302) {
-    return res.redirect(response.headers.get("location")!);
-  }
-
-  res.status(400).json({ message: "Redirect failed" });
-};
-
-// STEP 2: Handle callback + issue JWT
+// STEP 2: Google callback
 export const googleCallback = async (req: Request, res: Response) => {
-  const fetchReq = new FetchRequest(
-    `${process.env.BASE_URL}${req.originalUrl}`,
-    {
-      method: req.method,
-      headers: req.headers as any
-    }
-  );
+  const googleUser = (req as any).user;
 
-  const response = await Auth(fetchReq as any, {
-    providers: [
-      Google({
-        clientId: process.env.GOOGLE_CLIENT_ID!,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET!
-      })
-    ],
-    secret: process.env.AUTH_SECRET!,
-    trustHost: true
-  });
-
-  const profile = (response as any)?.auth?.user;
-
-  if (!profile?.email) {
-    return res.status(401).json({ message: "Google OAuth failed" });
+  if (!googleUser) {
+    return res.redirect(`${process.env.FRONTEND_URL}/login?error=google`);
   }
 
-  let user = await User.findOne({ email: profile.email });
+  // ✅ USER IS CREATED / FOUND HERE
+  let user = await User.findOne({ email: googleUser.email });
 
   if (!user) {
     user = await User.create({
-      name: profile.name,
-      email: profile.email,
-      provider: "google"
+      name: googleUser.name,
+      email: googleUser.email,
+      provider: "google",
+      isEmailVerified: true
     });
   }
 
+  // ✅ ISSUE JWT
   const token = jwt.sign(
     { userId: user._id },
     process.env.JWT_SECRET!,
     { expiresIn: "7d" }
   );
 
-  res.json({ token });
+  // ✅ REDIRECT TO FRONTEND WITH TOKEN
+  res.redirect(
+    `${process.env.FRONTEND_URL}/oauth-success?token=${token}`
+  );
 };

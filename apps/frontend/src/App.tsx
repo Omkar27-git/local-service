@@ -1,74 +1,61 @@
-import {  Routes, Route } from "react-router-dom";
-import Dashboard from "./pages/Dashboard";
-import Businesses from "./pages/Businesses";
-import Bookings from "./pages/Bookings";
+import { Routes, Route } from "react-router-dom";
+
+import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Home from "./pages/Home";
-import Booking from "./pages/Booking";
-import Layout from "./components/Layout/Layout";
+import Dashboard from "./pages/Dashboard";
 import Services from "./pages/Services";
 import Providers from "./pages/Providers";
-import OAuthSuccess from "./pages/OauthSucess";
+import Booking from "./pages/Booking";
+import Bookings from "./pages/Bookings";
+import Contact from "./pages/Contact";
+
+import Layout from "./components/Layout/Layout";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
-    
-      <Routes>
-        {/* Public */}
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/oauth-success" element={<OAuthSuccess />} />
-        <Route path="/services" element={<Services />} />
-        <Route path="/services/:serviceId/providers" element={<Providers />} />
+    <Routes>
+      {/* ---------- Public Routes ---------- */}
+      <Route path="/" element={<Home />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
-        {/* Protected */}
+      {/* ---------- Public browsing ---------- */}
+      <Route path="/services" element={<Services />} />
+      <Route path="/services/:id" element={<Providers />} />
+
+      {/* ---------- Protected Routes ---------- */}
+      <Route element={<Layout />}>
         <Route
           path="/dashboard"
           element={
-          
-              <Layout>
-                <Dashboard />
-              </Layout>
-       
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
           }
         />
 
         <Route
-          path="/businesses"
+          path="/booking/:id"
           element={
-    
-              <Layout>
-                <Businesses />
-              </Layout>
-         
-          }
-        />
-
-        <Route
-          path="/booking/:providerId"
-          element={
-            
-              <Layout>
-                <Booking />
-              </Layout>
-         
+            <ProtectedRoute>
+              <Booking />
+            </ProtectedRoute>
           }
         />
 
         <Route
           path="/bookings"
           element={
-         
-              <Layout>
-                <Bookings />
-              </Layout>
-
+            <ProtectedRoute>
+              <Bookings />
+            </ProtectedRoute>
           }
         />
-      </Routes>
-    
+      </Route>
+    </Routes>
   );
 }
 

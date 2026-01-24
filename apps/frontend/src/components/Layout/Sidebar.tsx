@@ -1,68 +1,61 @@
-import {
-  Box,
-  List,
-  ListItemButton,
-  ListItemText
-} from "@mui/material";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import api from "../../api/axios";
+import { useAuthStore } from "../../store/auth.store";
+import PersonIcon from "@mui/icons-material/Person";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 const Sidebar = () => {
   const navigate = useNavigate();
-  const location = useLocation();
+  const logoutStore = useAuthStore((s) => s.logout);
 
-  const menu = [
-    { label: "Dashboard", path: "/" },
-    { label: "Businesses", path: "/businesses" },
-    { label: "Bookings", path: "/bookings" }
-  ];
+  const handleLogout = async () => {
+    try {
+      await api.post("/auth/logout"); // backend clears cookie
+      logoutStore();
+      toast.success("Logged out");
+      navigate("/");
+    } catch {
+      toast.error("Logout failed");
+    }
+  };
 
   return (
-    <Box
-      width={260}
-      minHeight="100vh"
-      bgcolor="#0f172a"
-      color="white"
-      px={2}
-      py={3}
-    >
-      <Box
-        fontSize={22}
-        fontWeight={700}
-        mb={4}
-        letterSpacing={0.5}
-      >
-        LocalService
-      </Box>
+    <aside className="w-64 bg-[#0b1220] text-white flex flex-col justify-between p-6">
+      <div>
+        <h2 className="text-xl font-bold mb-8">Dashboard</h2>
 
-      <List>
-        {menu.map((item) => {
-          const active = location.pathname === item.path;
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="w-full text-left mb-4 hover:text-indigo-400"
+        >
+          Dashboard
+        </button>
 
-          return (
-            <ListItemButton
-              key={item.path}
-              onClick={() => navigate(item.path)}
-              sx={{
-                borderRadius: 2,
-                mb: 1,
-                bgcolor: active ? "#1e293b" : "transparent",
-                "&:hover": {
-                  bgcolor: "#1e293b"
-                }
-              }}
-            >
-              <ListItemText
-                primary={item.label}
-                primaryTypographyProps={{
-                  fontSize: 15,
-                  fontWeight: active ? 600 : 400
-                }}
-              />
-            </ListItemButton>
-          );
-        })}
-      </List>
-    </Box>
+        <button
+          onClick={() => navigate("/bookings")}
+          className="w-full text-left hover:text-indigo-400"
+        >
+          My Bookings
+        </button>
+      </div>
+
+      {/* Profile + Logout */}
+      <div className="border-t border-slate-700 pt-4">
+        <div className="flex items-center gap-2 mb-3">
+          <PersonIcon />
+          <span>My Profile</span>
+        </div>
+
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-2 text-red-400 hover:text-red-500"
+        >
+          <LogoutIcon />
+          Logout
+        </button>
+      </div>
+    </aside>
   );
 };
 

@@ -1,72 +1,64 @@
-import { Request, Response } from "express"
-import { createBusiness, getMyBusinesses } from "../services/business.service"
-import Business from "../models/business.model"
-import {uploadToS3} from "../utils/s3Upload"
-import { approveBusiness } from "../services/business.service";
+import { Request, Response } from "express";
+import {
+  createBusiness,
+  getAllBusinesses,
+  getMyBusinesses,
+  approveBusiness
+} from "../services/business.service";
 
+/**
+ * Public: get all approved businesses
+ */
+export const getBusinessesHandler = async (
+  _req: Request,
+  res: Response
+) => {
+  const businesses = await getAllBusinesses();
+  res.json(businesses);
+};
 
-//Create a new business
-export const createBusinessHandler = async (req: Request, res: Response) => {
+/**
+ * Create business
+ */
+export const createBusinessHandler = async (
+  req: Request,
+  res: Response
+) => {
   const userId = (req as any).userId;
+
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
 
   const business = await createBusiness(userId, req.body);
   res.status(201).json(business);
-
 };
-
-//Get logged in user's businesses
-
-export const getMyBusinessesHandler = async (req: Request, res: Response) => {
-  const userId = (req as any).userId;
-
-  const businesses = await getMyBusinesses(userId);
-
-  res.status(201).json(businesses)
-}
-
-
-//Upload business image(temporary)
-export const uploadBusinessImage = async (req: Request, res: Response) => {
-  const businessId = req.params.id;
-
-  //Multer puts file on req.file
-  if (!req.file) {
-    return res.status(401).json({
-      message: "No image file uploaded"
-    })
-  }
-
-
-  //Upload to S3
-  const imageUrl = await uploadToS3(req.file);
-
-  //Save image url to business
-  const business = await Business.findByIdAndUpdate(
-    businessId,
-    {$push:{images:imageUrl}},
-    {new:true}
-  );
-
-
-  res.json({
-     message: "Image uploaded successfully",
-    imageUrl,
-    business
-  })
-
-};
- 
 
 /**
- * Admin approves business
+ * Get logged-in user's businesses
+ */
+export const getMyBusinessesHandler = async (
+  req: Request,
+  res: Response
+) => {
+  const userId = (req as any).userId;
+
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  const businesses = await getMyBusinesses(userId);
+  res.json(businesses);
+};
+
+/**
+ * Admin approve business
  */
 export const approveBusinessHandler = async (
   req: Request,
   res: Response
 ) => {
   const businessId = req.params.id;
-
   const business = await approveBusiness(businessId);
-
   res.json(business);
 };

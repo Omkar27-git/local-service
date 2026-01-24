@@ -16,23 +16,17 @@ const businessSchema = new mongoose.Schema(
       required: true
     },
     description: {
-      type: String
-    },
-    location: {
       type: String,
       required: true
     },
+    images: {
+      type: [String],
+      default: []
+    },
     isApproved: {
       type: Boolean,
-      default: false
-    },
-
-    images: [
-      {
-        type: String
-      }
-
-    ]
+      default: true
+    }
   },
   { timestamps: true }
 );

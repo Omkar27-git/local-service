@@ -46,9 +46,7 @@ const Services = () => {
             </p>
 
             <button
-              onClick={() =>
-                navigate(`/services/${service.id}/providers`)
-              }
+              onClick={() => navigate(`/services/${service.id}`)}
               className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
             >
               View Providers

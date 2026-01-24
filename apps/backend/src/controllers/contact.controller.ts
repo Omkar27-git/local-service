@@ -1,11 +1,16 @@
 import { Request, Response } from "express";
-import { sendEmail } from "../utils/sendEmail";
+import { sendEmail } from "../utils/email";
 
-export const contactHandler = async (req: Request, res: Response) => {
+export const contactHandler = async (
+  req: Request,
+  res: Response
+) => {
   const { name, email, message } = req.body;
 
   if (!name || !email || !message) {
-    return res.status(400).json({ message: "All fields are required" });
+    return res.status(400).json({
+      message: "All fields are required"
+    });
   }
 
   await sendEmail({

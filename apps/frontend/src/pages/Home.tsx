@@ -1,5 +1,5 @@
-import Hero from "../components/Hero/Hero";
 import Navbar from "../components/Navbar/Navbar";
+import Hero from "../components/Hero/Hero";
 
 const Home = () => {
   return (
@@ -7,12 +7,7 @@ const Home = () => {
       <Navbar />
       <Hero />
     </>
-
   );
 };
 
 export default Home;
-
-
-
-
