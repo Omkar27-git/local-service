@@ -5,13 +5,12 @@ applications:
       phases:
         preBuild:
           commands:
-            # Install pnpm using corepack (recommended by pnpm)
             - corepack enable
             - corepack prepare pnpm@10.22.0 --activate
-            - pnpm install
+            - pnpm install --frozen-lockfile
         build:
           commands:
-            - pnpm build
+            - pnpm run build
       artifacts:
         baseDirectory: dist
         files:
