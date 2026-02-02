@@ -18,7 +18,7 @@ export const getBusinessesHandler = async (
 };
 
 /**
- * Create business
+ * Create business (Provider)
  */
 export const createBusinessHandler = async (
   req: Request,

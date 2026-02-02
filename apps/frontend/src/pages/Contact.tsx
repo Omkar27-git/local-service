@@ -8,14 +8,27 @@ const Contact = () => {
   const [message, setMessage] = useState("");
 
   const handleSubmit = async () => {
+    if (!name || !email || !message) {
+      toast.error("All fields are required");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
     try {
       await sendContactMessage({ name, email, message });
       toast.success("Message sent successfully");
       setName("");
       setEmail("");
       setMessage("");
-    } catch {
-      toast.error("Failed to send message");
+    } catch (err: any) {
+      toast.error(
+        err?.response?.data?.message || "Failed to send message"
+      );
     }
   };
 

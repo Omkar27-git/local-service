@@ -9,23 +9,29 @@ import Business from "../models/business.model";
 import { sendEmail } from "../utils/sendEmail";
 
 /**
- * Create booking
+ * Create booking (Customer)
  */
 export const createBookingHandler = async (
   req: Request,
   res: Response
 ) => {
   const customerId = (req as any).userId;
-  const businessId = req.params.businessId as string;
+  const businessId = req.params.businessId;
 
   if (!customerId) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const booking = await createBooking(customerId, businessId, req.body);
+  const business = await Business.findById(businessId).populate(
+    "owner",
+    "email name"
+  );
 
-  const business = await Business.findById(businessId)
-    .populate("owner", "email name");
+  if (!business) {
+    return res.status(404).json({ message: "Business not found" });
+  }
+
+  const booking = await createBooking(customerId, businessId, req.body);
 
   const providerEmail = (business as any)?.owner?.email;
 
@@ -33,7 +39,7 @@ export const createBookingHandler = async (
     await sendEmail({
       to: providerEmail,
       subject: "New Booking Request",
-      html: `<p>New booking request received</p>`
+      html: `<p>You have received a new booking request.</p>`
     });
   }
 
@@ -44,19 +50,27 @@ export const createBookingHandler = async (
 };
 
 /**
- * Provider bookings
+ * Provider: view bookings for a business
  */
 export const getBusinessBookingsHandler = async (
   req: Request,
   res: Response
 ) => {
-  const businessId = req.params.businessId as string;
+  const businessId = req.params.businessId;
+  const userId = (req as any).userId;
+
+  const business = await Business.findById(businessId);
+
+  if (!business || business.owner.toString() !== userId) {
+    return res.status(403).json({ message: "Access denied" });
+  }
+
   const bookings = await getBusinessBookings(businessId);
   res.json(bookings);
 };
 
 /**
- * Customer bookings
+ * Customer: view my bookings
  */
 export const getMyBookingsHandler = async (
   req: Request,
@@ -68,37 +82,37 @@ export const getMyBookingsHandler = async (
 };
 
 /**
- * Accept booking
+ * Provider: accept booking
  */
 export const acceptBookingHandler = async (
   req: Request,
   res: Response
 ) => {
-  const bookingId = req.params.bookingId as string;
+  const bookingId = req.params.bookingId;
   const booking = await updateBookingStatus(bookingId, "accepted");
   res.json({ message: "Booking accepted", booking });
 };
 
 /**
- * Reject booking
+ * Provider: reject booking
  */
 export const rejectBookingHandler = async (
   req: Request,
   res: Response
 ) => {
-  const bookingId = req.params.bookingId as string;
+  const bookingId = req.params.bookingId;
   const booking = await updateBookingStatus(bookingId, "rejected");
   res.json({ message: "Booking rejected", booking });
 };
 
 /**
- * Complete booking
+ * Provider: complete booking
  */
 export const completeBookingHandler = async (
   req: Request,
   res: Response
 ) => {
-  const bookingId = req.params.bookingId as string;
+  const bookingId = req.params.bookingId;
   const booking = await updateBookingStatus(bookingId, "completed");
   res.json({ message: "Booking completed", booking });
 };

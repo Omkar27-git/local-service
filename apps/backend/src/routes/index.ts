@@ -10,7 +10,7 @@ const router = Router();
 
 
 router.use("/auth", authRoutes)
-router.use("/business", businessRoutes)
+router.use("/businesses", businessRoutes)
 router.use("/bookings", bookingRoutes)
 router.use("/",contactRoutes)
 

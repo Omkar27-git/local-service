@@ -25,7 +25,7 @@ const businessSchema = new mongoose.Schema(
     },
     isApproved: {
       type: Boolean,
-      default: true
+      default: false // ✅ FIXED
     }
   },
   { timestamps: true }

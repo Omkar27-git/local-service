@@ -30,8 +30,8 @@ export const registerUser = async (
     emailVerificationToken
   });
 
-  // 📧 SEND VERIFICATION EMAIL
-  const verifyUrl = `${process.env.FRONTEND_URL}/verify-email?token=${emailVerificationToken}`;
+  // ✅ IMPORTANT FIX: BACKEND verify URL
+  const verifyUrl = `${process.env.BACKEND_URL}/api/auth/verify-email?token=${emailVerificationToken}`;
 
   await sendEmail({
     to: email,

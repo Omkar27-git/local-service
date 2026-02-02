@@ -2,11 +2,14 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { registerApi } from "../api/auth.api";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 const Register = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleRegister = async () => {
@@ -22,8 +25,8 @@ const Register = () => {
 
     try {
       await registerApi({ name, email, password });
-      toast.success("Registered successfully. Please login.");
-      navigate("/login");
+      toast.success("Registered successfully. Please verify your email.");
+      navigate("/check-email");
     } catch (err: any) {
       toast.error(
         err?.response?.data?.message || "Registration failed"
@@ -58,13 +61,22 @@ const Register = () => {
           onChange={(e) => setEmail(e.target.value)}
         />
 
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full border p-2 mb-4 rounded"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        {/* Password with show/hide */}
+        <div className="relative mb-4">
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Password"
+            className="w-full border p-2 rounded pr-10"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <span
+            className="absolute right-3 top-2.5 cursor-pointer text-gray-500"
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? <VisibilityOff /> : <Visibility />}
+          </span>
+        </div>
 
         <button
           onClick={handleRegister}
@@ -73,9 +85,10 @@ const Register = () => {
           Register
         </button>
 
+        {/* Google signup */}
         <button
           onClick={handleGoogleLogin}
-          className="w-full flex items-center justify-center gap-2 border py-2 rounded hover:bg-gray-100"
+          className="w-full flex items-center justify-center gap-2 border py-2 rounded hover:bg-gray-100 mb-4"
         >
           <img
             src="https://developers.google.com/identity/images/g-logo.png"
@@ -85,7 +98,7 @@ const Register = () => {
           Sign up with Google
         </button>
 
-        <p className="text-center text-sm mt-4">
+        <p className="text-center text-sm">
           Already have an account?{" "}
           <span
             className="text-indigo-600 cursor-pointer"

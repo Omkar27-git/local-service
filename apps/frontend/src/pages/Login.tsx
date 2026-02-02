@@ -2,15 +2,18 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { loginApi } from "../api/auth.api";
-import { useAuthStore } from "../store/auth.store";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const login = useAuthStore((state) => state.login);
 
-  const handleLogin = async () => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault(); // 🔥 VERY IMPORTANT
+
     if (!email || !password) {
       toast.error("Email and password are required");
       return;
@@ -19,11 +22,10 @@ const Login = () => {
     try {
       await loginApi({ email, password });
 
-      // ✅ JUST MARK AUTH TRUE
-      login();
-
       toast.success("Login successful");
-      navigate("/dashboard");
+
+      // ✅ cookie is set, ProtectedRoute will allow
+      navigate("/dashboard", { replace: true });
     } catch (err: any) {
       toast.error(
         err?.response?.data?.message || "Invalid email or password"
@@ -37,8 +39,13 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="w-full max-w-sm bg-white p-6 rounded-lg shadow">
-        <h2 className="text-2xl font-semibold text-center mb-6">Login</h2>
+      <form
+        onSubmit={handleLogin}
+        className="w-full max-w-sm bg-white p-6 rounded-lg shadow"
+      >
+        <h2 className="text-2xl font-semibold text-center mb-6">
+          Login
+        </h2>
 
         <input
           type="email"
@@ -48,22 +55,33 @@ const Login = () => {
           onChange={(e) => setEmail(e.target.value)}
         />
 
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full border p-2 mb-4 rounded"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        {/* Password with show/hide */}
+        <div className="relative mb-4">
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Password"
+            className="w-full border p-2 rounded pr-10"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <span
+            className="absolute right-3 top-2.5 cursor-pointer text-gray-500"
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? <VisibilityOff /> : <Visibility />}
+          </span>
+        </div>
 
         <button
-          onClick={handleLogin}
+          type="submit"
           className="w-full bg-indigo-600 text-white py-2 rounded mb-3"
         >
           Login
         </button>
 
+        {/* Google login */}
         <button
+          type="button"
           onClick={handleGoogleLogin}
           className="w-full flex items-center justify-center gap-2 border py-2 rounded hover:bg-gray-100"
         >
@@ -74,7 +92,7 @@ const Login = () => {
           />
           Sign in with Google
         </button>
-      </div>
+      </form>
     </div>
   );
 };

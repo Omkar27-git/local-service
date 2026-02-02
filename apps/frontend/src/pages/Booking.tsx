@@ -1,20 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useAuthStore } from "../store/auth.store";
-import axios from "axios";
+import api from "../api/axios";
 import { toast } from "react-toastify";
 
 const Booking = () => {
-  const { id } = useParams(); // business/service id
+  const { id } = useParams(); // businessId
   const navigate = useNavigate();
-  const token = useAuthStore((state) => state.token);
 
   const [date, setDate] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-
-  // ⛔ if no id, don’t render
   if (!id) {
     return (
       <div className="text-center mt-20 text-red-600">
@@ -34,18 +30,10 @@ const Booking = () => {
     try {
       setLoading(true);
 
-      await axios.post(
-        `http://localhost:4000/api/bookings/${id}`,
-        {
-          requestedDate: date,
-          message
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
+      await api.post(`/bookings/${id}`, {
+        requestedDate: date,
+        message
+      });
 
       toast.success("Booking created successfully 🎉");
       navigate("/bookings");

@@ -1,7 +1,12 @@
 import { Router } from "express";
 import passport from "passport";
 import jwt from "jsonwebtoken";
-import { register, login, logout } from "../controllers/auth.controller";
+import {
+  register,
+  login,
+  logout,
+  verifyEmail
+} from "../controllers/auth.controller";
 import { protect } from "../middlewares/auth.middleware";
 
 const router = Router();
@@ -10,12 +15,15 @@ router.post("/register", register);
 router.post("/login", login);
 router.post("/logout", logout);
 
-// 👇 ADD THIS
-router.get("/me", protect, (req, res) => {
+// ✅ Email verification
+router.get("/verify-email", verifyEmail);
+
+// ✅ Used by ProtectedRoute
+router.get("/me", protect, (_req, res) => {
   res.json({ ok: true });
 });
 
-// GOOGLE OAUTH
+// ---------- GOOGLE OAUTH ----------
 router.get(
   "/google",
   passport.authenticate("google", {

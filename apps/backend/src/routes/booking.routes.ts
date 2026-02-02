@@ -2,27 +2,24 @@ import { Router } from "express";
 import {
   createBookingHandler,
   getBusinessBookingsHandler,
-  getMyBookingsHandler
-} from "../controllers/booking.controller";
-
-import {
+  getMyBookingsHandler,
   acceptBookingHandler,
   rejectBookingHandler,
   completeBookingHandler
 } from "../controllers/booking.controller";
-
 import { protect } from "../middlewares/auth.middleware";
 
 const router = Router();
 
 /**
- * Customer creates a booking for a business
+ * Customer creates booking
  */
-router.post(
-  "/:businessId",
-  protect,
-  createBookingHandler
-);
+router.post("/:businessId", protect, createBookingHandler);
+
+/**
+ * Customer views own bookings
+ */
+router.get("/me", protect, getMyBookingsHandler);
 
 /**
  * Provider views bookings for a business
@@ -34,42 +31,10 @@ router.get(
 );
 
 /**
- * Customer views their bookings
+ * Provider booking actions
  */
-router.get(
-  "/me",
-  protect,
-  getMyBookingsHandler
-);
-
-
-/**
- * Accept a booking
- */
-router.patch(
-  "/:bookingId/accept",
-  protect,
-  acceptBookingHandler
-);
-
-/**
- * Reject a booking
- */
-router.patch(
-  "/:bookingId/reject",
-  protect,
-  rejectBookingHandler
-);
-
-/**
- * Complete a booking
- */
-router.patch(
-  "/:bookingId/complete",
-  protect,
-  rejectBookingHandler
-);
-
-
+router.patch("/:bookingId/accept", protect, acceptBookingHandler);
+router.patch("/:bookingId/reject", protect, rejectBookingHandler);
+router.patch("/:bookingId/complete", protect, completeBookingHandler);
 
 export default router;

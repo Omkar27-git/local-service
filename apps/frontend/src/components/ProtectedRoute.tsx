@@ -1,22 +1,24 @@
 import { Navigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import api from "../api/axios";
 
-const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  const [loading, setLoading] = useState(true);
-  const [isAuth, setIsAuth] = useState(false);
+const ProtectedRoute = ({ children }: { children: ReactNode }) => {
+  const [status, setStatus] = useState<"loading" | "auth" | "guest">("loading");
 
   useEffect(() => {
     api
-      .get("/auth/me") // 👈 we will add this endpoint
-      .then(() => setIsAuth(true))
-      .catch(() => setIsAuth(false))
-      .finally(() => setLoading(false));
+      .get("/auth/me")
+      .then(() => setStatus("auth"))
+      .catch(() => setStatus("guest"));
   }, []);
 
-  if (loading) return null;
+  if (status === "loading") return null;
 
-  return isAuth ? children : <Navigate to="/login" replace />;
+  if (status === "guest") {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
 };
 
 export default ProtectedRoute;

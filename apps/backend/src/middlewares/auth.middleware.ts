@@ -1,40 +1,33 @@
-import jwt from 'jsonwebtoken';
-import { Request, Response, NextFunction } from 'express';
+import jwt from "jsonwebtoken";
+import { Request, Response, NextFunction } from "express";
 
 export const protect = (
-    req:Request,
-    res:Response,
-    next:NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction
 ) => {
-   const authHeader = req.headers.authorization;
+  // 🍪 READ TOKEN FROM COOKIE (NOT HEADER)
+  const token = req.cookies?.token;
 
-   if(!authHeader || !authHeader.startsWith('Bearer'))
-   {
+  if (!token) {
     return res.status(401).json({
-        message:"Not authorized,no token"
+      message: "Not authorized, no token"
     });
-   }
+  }
 
-   const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET!
+    ) as any;
 
-   try{
-       const decoded = jwt.verify(
-        token,
-        process.env.JWT_SECRET!
-       ) as any;
+    // ✅ attach user id to request
+    (req as any).userId = decoded.userId;
 
-       //attach user id to request
-       (req as any).userId = decoded.userId;
-
-       next(); //go to the controller 
-
-
-
-   }catch(error){
+    next();
+  } catch (error) {
     return res.status(401).json({
-        message:"Invalid token"
-    })
-   }
-
-
-}
+      message: "Invalid or expired token"
+    });
+  }
+};

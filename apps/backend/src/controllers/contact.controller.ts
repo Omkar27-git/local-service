@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { sendEmail } from "../utils/email";
+import { sendEmail } from "../utils/sendEmail";
 
 export const contactHandler = async (
   req: Request,
@@ -13,8 +13,15 @@ export const contactHandler = async (
     });
   }
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({
+      message: "Invalid email address"
+    });
+  }
+
   await sendEmail({
-    to: process.env.EMAIL_FROM!,
+    to: process.env.CONTACT_RECIEVER_EMAIL!, // your admin email
     subject: "New Contact Message",
     html: `
       <h3>New Contact Request</h3>

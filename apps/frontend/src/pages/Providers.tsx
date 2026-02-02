@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const mockProviders = [
   {
@@ -16,7 +16,6 @@ const mockProviders = [
 ];
 
 const Providers = () => {
-  const { id: serviceId } = useParams(); // service id (plumbing, electrician)
   const navigate = useNavigate();
 
   return (
@@ -44,9 +43,7 @@ const Providers = () => {
             </p>
 
             <button
-              onClick={() =>
-                navigate(`/booking/${provider.id}`)
-              }
+              onClick={() => navigate(`/booking/${provider.id}`)}
               className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
             >
               Book Now
