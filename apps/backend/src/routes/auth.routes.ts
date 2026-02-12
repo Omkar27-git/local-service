@@ -35,7 +35,7 @@ router.get(
   "/google/callback",
   passport.authenticate("google", {
     session: false,
-    failureRedirect: "http://localhost:5173/login"
+    failureRedirect:`${process.env.FRONTEND_URL}/login`
   }),
   (req: any, res) => {
     const token = jwt.sign(
@@ -50,7 +50,7 @@ router.get(
       secure: false
     });
 
-    res.redirect("http://localhost:5173/dashboard");
+    res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
   }
 );
 
